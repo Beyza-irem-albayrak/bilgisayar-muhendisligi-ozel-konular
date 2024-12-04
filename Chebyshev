@@ -1,0 +1,85 @@
+clear all
+e_ripple = 0.17;
+n = 6;
+for k = 1:n
+    D_Re = -sin((2*k-1)*pi/(2*n)) * sinh(asinh(1/e_ripple)/n);
+    D_Im = i*cos((2*k-1)*pi/(2*n)) * cosh(asinh(1/e_ripple)/n);
+    s(k) = [D_Re + D_Im];
+end
+for k = 1:ceil(n/2)
+    if (k == (n-k+1))
+        Hch(k, :) = real([0 1 -s(k)]);
+    else
+        Hch(k, :) = real(conv([1 -s(k)], [1 -s(n-k+1)]));
+    end
+end
+for l = 1:100
+    w(l) = 2 * l / 100;
+    Nw(l) = 1;
+    Dw(l) = 1;
+    
+    for k = 1:ceil(n/2)
+        Nw(l) = abs(Nw(l) * Hch(k, 3));
+        Dw(l) = abs(Dw(l) * (Hch(k, 1) * (i*w(l))^2 + Hch(k, 2) * (i*w(l)) + Hch(k, 3)));
+    end
+    Hw(l) = Nw(l) / Dw(l);
+end
+wl = 320;
+wh = 170;
+wb = 380;
+BW = 61;
+syms Hn(s) Hdn(s)
+Hn(s)=1/1;
+for k=1:ceil(n/2)
+    if ( k==(n-k+1) )
+        Hn(s)=Hn(s)*( Hch(k,3)/(s*Hch(k,2) + Hch(k,3)));
+    else
+        Hn(s)=Hn(s)*( Hch(k,3)/(s^2* Hch(k,1) + s* Hch(k,2) + Hch(k,3)));
+    end
+end
+%Hd(s)=Hn(s/wl);
+%Hd(s)=Hn(wh/s);
+Hd(s)=Hn((s^2+wb^2)/(BW*s));
+factor(Hd);
+
+%Alcak Geciren
+
+clear all
+for k=1:500
+    s(k)=k;
+    Nw(k)=55685500648370902543059910656000000*pi^2;
+    Dw(k)=(3375273*(i*s(k))^2 +206056192*pi*(i*s(k))+74768179200*pi)* ...
+    (19575047*(i*s(k))^2+437412160*pi*(i*s(k))+709904076800*pi)* ...
+    (41547283*(i*s(k))^2+3464800000*pi*(i*s(k))+1049121177600);
+    H(k)=Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)
+
+%Yuksek Geciren
+
+clear all
+for k=1:1000
+    s(k)=k;
+    Nw(k)=6482645479074085893*pi^2*(i*s(k))^6;
+    Dw(k)=(2561331*(i*s(k))^2+460168750*pi*(i*s(k))+300179119675)* ...
+    (365079*pi*(i*s(k))^2+54733676*pi*(i*s(k))+48772694850)* ...
+    (6932657*pi*(i*s(k))^2+232375210*pi*(i*s(k))+565718858300);
+    H(k)=Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)
+
+%Band Geciren
+
+clear all
+for k=1:800
+    s(k)=k;
+    Nw(k)=219008735692813834007363271720*pi^2*(i*s(k))^6;
+    Dw(k)=(681103*(i*s(k))^4+10827500*pi*(i*s(k))^3+197327511164*(i*s(k))^2+1563491000000*pi*(i*s(k))+14201923850080000)* ...
+    (16876365*(i*s(k))^4+196397308*pi*(i*s(k))^3+13584589590*pi*(i*s(k))^2+4873894212000*(i*s(k))^2+28359771275200*pi*(i*s(k))+351895162106400000)* ...
+    (19575047*(i*s(k))^4+83381693*pi*(i*s(k))^3+5653273573600*(i*s(k))^2+25796416697*pi*(i*s(k))^2+12040316469200*pi*(i*s(k))+408166352013920000);
+    H(k)= Nw(k)/Dw(k);
+end
+Ha=abs(H);
+plot(s,Ha)
