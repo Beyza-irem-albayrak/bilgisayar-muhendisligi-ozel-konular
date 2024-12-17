@@ -1,0 +1,37 @@
+clear all
+w=0;
+Hw=0;
+Hs=0;
+hd=0;
+Whann=0; Wbarhan=0; Wham=0;
+%N=30;
+%N=90;
+N=356;
+wc=0.45*pi;
+for k=1:N
+    hd(k)=(wc/pi)*sin(wc*(k-N/2))/(wc*(k-N/2));
+    if(wc*(k-N/2))==0
+        hd(k)=(wc/pi);
+    end
+end
+
+for k=1:N
+    n=k-1;
+   	Whann(k)=0.5*(1-cos(2*pi*(n/(N-1)) ));
+    Wbarhan(k)=0.62-0.48*abs(n/(N-1)-0.5)+0.38*cos(2*pi*(n/(N-1)-0.5));
+	Wham(k)=0.54-0.46*(cos(2*pi*(n/(N-1))));
+	Wblac(k)=0.42-0.5*(cos(2*pi*(n/(N-1))))+0.08*(cos(4*pi*(n/(N-1))));
+end
+%hd=hd.*Whann;
+%hd=hd.*Wbarhan;
+%hd=hd.*Wham;
+hd=hd.*Wblac;
+
+for j=1:200
+    w(j)=pi*j/200;
+    for k=1:N
+    Hs(k)=exp(-i*k*w(j))*hd(k);
+    end
+    Hw(j)=abs(sum(Hs));
+end
+plot(w,Hw);
